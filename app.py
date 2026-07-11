@@ -36,7 +36,6 @@ z_threshold = st.sidebar.slider(
 # -----------------------------------------------------------
 @st.cache_data(ttl=15) # 15초 동안 캐싱하여 서버 과부하 및 차단 방지
 def get_flight_data():
-    # [수정] &quot; 오타를 지우고 깔끔한 URL 주소로 변경
     url = "https://opensky-network.org/api/states/all"
     params = {"lamin": 33.0, "lamax": 39.0, "lomin": 124.0, "lomax": 132.0}
     try:
@@ -68,6 +67,12 @@ if len(raw_data) > 0:
     
     # 위치 정보와 수직 속도가 없는 데이터 정제
     df = df.dropna(subset=['longitude', 'latitude', 'vertical_rate'])
+    
+    # [안전장치 추가] 정제 이후에 한반도 상공에 데이터가 0대라면 화면 작동을 잠시 멈춤
+    if df.empty:
+        st.warning("⚠️ 필터링 결과 한반도 상공에 유효한 비행기 데이터가 없습니다. 잠시 후 다시 새로고침 해주세요.")
+        st.stop()
+        
     df['callsign'] = df['callsign'].astype(str).str.strip().replace('', '알 수 없음')
 
     # --- [핵심 기능] Z-score 계산 ---
@@ -86,7 +91,6 @@ if len(raw_data) > 0:
     df['status'] = df['z_score'].apply(lambda z: '위험(급강하)' if z <= z_threshold else '정상')
 
     # --- [시각화 꿀팁] Pydeck 호환 컬러 리스트 부여 ---
-    # Pydeck에 넣을 때는 아예 튜플이나 순수 리스트 상태여야 에러가 안 납니다.
     df['color'] = df['status'].apply(lambda s: [255, 0, 0, 255] if s == '위험(급강하)' else [255, 200, 0, 180])
 
     # 대시보드 사이드바 요약 정보 표시
@@ -106,8 +110,8 @@ if len(raw_data) > 0:
         "ScatterplotLayer",
         data=df,
         get_position="[longitude, latitude]",
-        get_radius=7000,          # 지도에서 조금 더 잘 보이게 크기 소폭 상향
-        get_fill_color="color",   # 우리가 만든 color 컬럼 매핑
+        get_radius=7000,          
+        get_fill_color="color",   
         pickable=True
     )
 
@@ -126,7 +130,7 @@ if len(raw_data) > 0:
         layers=[layer],
         initial_view_state=view_state,
         tooltip=tooltip,
-        map_style="mapbox://styles/mapbox/dark-v10" # 완전히 어두운 다크맵 스타일 지정
+        map_style="dark" # [수정 완료] 인증이 필요 없는 기본 다크맵 스타일로 변경했습니다.
     )
 
     st.pydeck_chart(r)
