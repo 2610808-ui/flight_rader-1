@@ -101,16 +101,3 @@ if not flights_df.empty:
     
     st.subheader("📋 비행기 상세 데이터 표")
     st.dataframe(flights_df, use_container_width=True)
-```
-eof
-
-### 🛠️ 최종 적용 및 확인 순서
-1. **`app.py`**: 위의 새 코드를 복사해서 깃허브 저장소의 `app.py` 내용에 덮어씌웁니다.
-2. **`requirements.txt`**: 적어두신 환경 파일에 아래 라이브러리 목록이 정확히 적혀있는지 한 번 더 확인합니다.
-   ```text
-   streamlit>=1.32
-   requests>=2.31
-   pandas>=2.0
-   numpy>=1.24
-   pydeck
-   FlightRadarAPI
