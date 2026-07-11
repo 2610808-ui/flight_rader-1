@@ -19,7 +19,7 @@ def get_mock_data():
 # --- 2. OpenSky Network API 실시간 데이터 가져오기 함수 ---
 @st.cache_data(ttl=10) # 10초 동안 데이터를 캐싱하여 잦은 새로고침으로 인한 차단을 방지합니다.
 def get_real_flights_opensky(username="", password=""):
-    url = "https://opensky-network.org/api/states/all"
+    url = "[https://opensky-network.org/api/states/all](https://opensky-network.org/api/states/all)"
     
     # 한반도 영역 감싸는 위경도 좌표 설정 (남, 북, 서, 동 순서)
     # lamin, lamax, lomin, lomax
@@ -198,15 +198,3 @@ with st.expander("🎓 [Tutor Corner] 튜터가 설명해 주는 OpenSky API 분
     - **정보량:** FlightRadar24는 출발 공항(ICN) 및 도착 공항(LAX) 정보를 기본 제공하지만, OpenSky의 공용 States API는 항공기가 우주에서 전파하는 물리적 신호(위치, 고도, 속도) 중심이기 때문에 경로 정보가 직접 표시되지 않습니다. (각 API마다 수집 및 제공 구조가 달라요!)
     - **가입 여부:** FlightRadar24는 코랩 등 공용 서버 IP를 봇으로 철저히 격리 차단하지만, OpenSky는 로그인 정보 입력 세션을 직접 만들 수 있어서 학교 실습이나 개인 프로젝트 웹앱으로 개발하기에 훨씬 친화적입니다!
     """)
-```
-eof
-
-### 📝 이 단계에서 기억해야 할 추가 팁!
-이전 단계에서 사용했던 `requirements.txt` 파일을 가볍게 점검해 주세요. 이제는 `FlightRadarAPI` 패키지가 필요 없어졌으므로, 깃허브의 **`requirements.txt`**를 아래와 같이 심플하게 업데이트해주시면 더욱 좋습니다!
-
-```text
-streamlit>=1.32
-requests>=2.31
-pandas>=2.0
-numpy>=1.24
-pydeck
