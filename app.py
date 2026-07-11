@@ -1,5 +1,4 @@
-!pip install streamlit -q
-!pip install FlightRadarAPI
+
 !wget -q https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64
 !chmod +x cloudflared-linux-amd64
 print("다운로드 완료")
