@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import pydeck as pdk
-from FlightRadar24 import FlightRadar24API
+from FlightRadarAPI import FlightRadar24API
 
 # --- 1. 가상 데이터(Mock Data) 생성 함수 ---
 def get_mock_data():
@@ -15,11 +15,12 @@ def get_mock_data():
     return pd.DataFrame(mock_flights, columns=columns), True
 
 # --- 2. 진짜 데이터 가져오기 함수 (FlightRadar24) ---
-@st.cache_data(ttl=15) 
+@st.cache_data(ttl=15)
 def get_real_flights_fr24():
     try:
         fr_api = FlightRadar24API()
-        bounds = "39.0,33.0,124.0,132.0" # 한반도 좌표
+        # bounds format: "N,S,W,E" (북, 남, 서, 동 경계선 설정)
+        bounds = "39.0,33.0,124.0,132.0"
         
         flights = fr_api.get_flights(bounds=bounds)
         
@@ -35,8 +36,8 @@ def get_real_flights_fr24():
                 '도착지': f.destination_airport_iata if f.destination_airport_iata else 'N/A',
                 'lat': f.latitude,
                 'lon': f.longitude,
-                '기압고도': int(f.altitude * 0.3048),
-                '속도': int(f.ground_speed * 0.514444),
+                '기압고도': int(f.altitude * 0.3048),  # 피트 -> 미터 변환
+                '속도': int(f.ground_speed * 0.514444), # 노트 -> m/s 변환
                 '방향(각도)': f.heading
             })
             
@@ -44,6 +45,7 @@ def get_real_flights_fr24():
         return df, False
 
     except Exception:
+        # 에러 발생 시 안전하게 가상 데이터 리턴
         return get_mock_data()
 
 # ---------------------------------------------------------
@@ -55,7 +57,7 @@ st.title("✈️ 한반도 실시간 3D 비행기 추적기")
 st.write("파이썬 코드로 하늘 위 비행기 데이터를 수집하고 3D로 시각화한 프로젝트입니다!")
 
 if st.button("🔄 데이터 새로고침", use_container_width=True):
-    st.cache_data.clear() 
+    st.cache_data.clear()
 
 with st.spinner("레이더 탐지 중..."):
     flights_df, is_mock = get_real_flights_fr24()
@@ -79,9 +81,9 @@ if not flights_df.empty:
         data=flights_df,
         get_position=["lon", "lat"],
         get_elevation="기압고도",
-        elevation_scale=1.2, 
-        radius=2500,         
-        get_fill_color=["255", "255 - (기압고도/100)", "50", "220"], 
+        elevation_scale=1.2,
+        radius=2500,
+        get_fill_color=["255", "255 - (기압고도/100)", "50", "220"],
         pickable=True,
         auto_highlight=True,
     )
@@ -99,3 +101,16 @@ if not flights_df.empty:
     
     st.subheader("📋 비행기 상세 데이터 표")
     st.dataframe(flights_df, use_container_width=True)
+```
+eof
+
+### 🛠️ 최종 적용 및 확인 순서
+1. **`app.py`**: 위의 새 코드를 복사해서 깃허브 저장소의 `app.py` 내용에 덮어씌웁니다.
+2. **`requirements.txt`**: 적어두신 환경 파일에 아래 라이브러리 목록이 정확히 적혀있는지 한 번 더 확인합니다.
+   ```text
+   streamlit>=1.32
+   requests>=2.31
+   pandas>=2.0
+   numpy>=1.24
+   pydeck
+   FlightRadarAPI
